@@ -32,7 +32,7 @@ Feature: [QATM-1870] Service_Installation
     Then  I run 'echo !{DCOS_AUTH_COOKIE}' locally
 
   Scenario: [QATM-1870][03] Marathon-LB Installation - Get versions installed in Command Center
-    Given I run 'curl -s -XGET -k -H "Cookie:dcos-acs-auth-cookie=!{DCOS_AUTH_COOKIE}" -H 'Content-Type: application/json' -H 'Accept: application/json' https://${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}/service/deploy-api/universe/postgres | awk 'FNR == 1'| tr -d "\"" | tr -d []' in the ssh connection and save the value in environment variable 'relese_name'
+    Given I run 'curl -s -XGET -k -H "Cookie:dcos-acs-auth-cookie=!{DCOS_AUTH_COOKIE}" -H 'Content-Type: application/json' -H 'Accept: application/json' https://${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}/service/deploy-api/universe/marathon-lb | awk 'FNR == 1'| tr -d "\"" | tr -d []' in the ssh connection and save the value in environment variable 'relese_name'
     When I run 'echo !{relese_name}' in the ssh connection
     #Retrive relese version number
 
@@ -95,7 +95,7 @@ Feature: [QATM-1870] Service_Installation
     When in less than '500' seconds, checking each '20' seconds, the command output 'curl -XGET -k -H "Cookie:dcos-acs-auth-cookie=!{DCOS_AUTH_COOKIE}" 'https://${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}/service/marathonlb/installer/status' | jq .healthy' contains '1'
     #Check status in DCOS
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Then in less than '500' seconds, checking each '20' seconds, the command output 'dcos task | grep postgreseos | grep R | wc -l' contains '1'
+    Then in less than '500' seconds, checking each '20' seconds, the command output 'dcos task | grep ${MARATHON-LB-ID:-marathon-lb-sec} | grep R | wc -l' contains '1'
     When I run 'dcos task |  awk '{print $5}' | grep ${MARATHON-LB-ID:-marathon-lb-sec}' in the ssh connection and save the value in environment variable 'marathonlb-TaskId'
     Then in less than '1200' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{marathonlb-TaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
     And in less than '1200' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{marathonlb-TaskId} | grep healthCheckResults' contains 'healthCheckResults'
